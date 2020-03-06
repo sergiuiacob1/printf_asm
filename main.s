@@ -1,35 +1,205 @@
 .data
     DMAX: .long 16384
     FORMAT: .space 16384
+
+    BUFFER: .space 128
+    INVERSED: .space 128
  
 
 .global myprintf
 
+// global conventions:
+// rdi is used for the format string
+// printf can have a variable number of parameters
+// we will use r11 to track where is the next parameter to print
+// if r11 is < 8 bytes * 5 parameters (rsi, rdx, rcx, r8, r9), simply POP the next parameter from the stack
+// if r11 is equal to 40, the parameter is at 16(%rbp)
+// for any value for r11 bigger than 40, the next parameter should be at (r11 - 40 + 16)(%rbp)
+
 myprintf:
     push %rbp
     movq %rsp, %rbp
+    
+    // parameter order: rdi, rsi, rdx, rcx, r8, r9
+    // first parameter (rdi) is the format string, we keep that one separately
+    // we will often overwrite rdx, rcx, so it is better if
+    // we push all of these registers that are parameters on the stack
+    // we won't push rdi to the stack, we'll use it as it is
 
-    // first parameter is the format string
-    // mov 16(%rbp), %rcx
-    mov 16(%rbp), %rcx
+    // IMPORTANT:
+    // in case myprintf has more than 6 parameters, the rest of them are already on the stack
 
+    // push registers in the inversed order
+    // so I can just pop the parameters when I need them
+    push %r9
+    push %r8
+    push %rcx
+    push %rdx
+    push %rsi
+
+
+    // initially, r10 == 0 (we are at the first parameter)
+    xor %r10, %r10
 
     // go through the format string
-    _printFormatString:
+    _parseFormatString:
+        cmpb $0, (%rdi)
+        je myprintf_done
+
+        call checkIfInteger
+        cmp $1, %rax
+        jnz myprintf_notInteger
+            // it is an integer
+            call printInteger
+            jmp _parseFormatString
+
+
+        myprintf_notInteger:
+        // maybe it's a character?
+
+
+
+        // if I reach this, simply print the current character and go to the next one
+        mov %rdi, %rcx
         mov $4, %rax
         mov $1, %rbx
-        mov $2, %rdx
+        mov $1, %rdx
         int $0x80
 
+        inc %rdi
+        jmp _parseFormatString
+            
+
+    myprintf_done:
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
+checkIfInteger:
+    push %rbp
+    movq %rsp, %rbp
+
+    xor %rax, %rax
+
+    // check if what I have right now is an integer
+    // it is an integer if I have "%d"
+    cmpb $'%', (%rdi)
+    jne checkIfInteger_return
+    cmpb $'d', 1(%rdi)
+    jne checkIfInteger_return
+    mov $1, %rax
+    
+    checkIfInteger_return:
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
+printInteger:
+    push %rbp
+    movq %rsp, %rbp
+
+    // first, go to the end of %...d in the string format (rdi)
+    printInteger_JumpOverIntegerFormat:
+        inc %rdi
+        cmpb $'d', (%rdi)
+        jne printInteger_JumpOverIntegerFormat
+    // jump over the last 'd'
+    inc %rdi
+
+    // put in rax what I have to print
+    call getNextParameter
+
+    // remember the sign
+    mov $1, %r14
+    cmp $0, %rax
+    jg printInteger_isPositive
+    mov $-1, %r14
+    imul $-1, %rax 
+
+    printInteger_isPositive:
+    // get the number's digits
+    mov $INVERSED, %rbx
+    xor %rcx, %rcx
+    mov $10, %r10
+    printInteger_reverseNumber:
+        xor %rdx, %rdx
+        idiv %r10, %rax
+        movb %dl, (%rbx)
         inc %rcx
-        cmpb $0, (%rcx)
-        jnz _printFormatString
+        inc %rbx
+
+        cmp $0, %rax
+        jnz printInteger_reverseNumber
+
+    // put the digits in the BUFFER, but reverse them
+
+    // total number of characters to be written:
+    mov %rcx, %r15
+    mov $BUFFER, %rbx
+
+    // check the sign
+    cmp $-1, %r14
+    jne _do_not_adjust_sign
+    movb $'-', (%rbx)
+    inc %rbx
+    inc %r15
+
+    _do_not_adjust_sign:
+    mov $INVERSED, %rax
+    
+    // for rbx, go to the end
+    add %rcx, %rbx
+
+    _build_correct_number:
+        mov (%rax), %r13
+        movb %r13b, (%rbx)
+        addb $48, (%rbx)
+
+        inc %rax
+        dec %rbx
+
+        loop _build_correct_number
+
+    // one more character (the newline)
+    inc %r15
+    mov $4, %rax
+    mov $1, %rbx
+    mov $BUFFER, %rcx
+    mov %r15, %rdx
+    int $0x80
+
 
     movq %rbp, %rsp
     pop %rbp
     ret
 
-finish:
-    mov $1, %rax
-    mov $0, %rbx
-    int $0x80
+getNextParameter:
+    push %rbp
+    movq %rsp, %rbp
+
+    mov %rsi, %rax
+    jmp getNextParameter_end
+
+    // puts in rax the next parameter that I have to print
+    
+    cmp $40, %r11
+    jge getNextParameter_isAfterFirstParameters
+    // if r11 < 40 bytes, then the next parameter is either rsi, rdx, rcx, r8 or r9
+    // these were pushed on the stack at the beggining
+    pop %rax
+    // I "consumed" 8 bytes
+    add $8, %r11
+    jmp getNextParameter_end
+
+    getNextParameter_isAfterFirstParameters:
+    // get from stack
+    mov %r11, %rax
+    sub $40, %rax
+    // mov %rbp, 
+
+    
+
+    getNextParameter_end:
+    movq %rbp, %rsp
+    pop %rbp
+    ret
