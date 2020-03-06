@@ -113,7 +113,10 @@ printCharacter:
     // get in rax what I have to print
     call getNextParameter
 
-    mov %rax, BUFFER
+    mov $BUFFER, %rbx
+    movb %al, (%rbx)
+    inc %rbx
+    movb $0, (%rbx)
 
     mov $4, %rax
     mov $1, %rbx
@@ -209,8 +212,7 @@ printInteger:
         dec %rbx
 
         loop _build_correct_number
-
-    inc %r15
+    
     mov $4, %rax
     mov $1, %rbx
     mov $BUFFER, %rcx
