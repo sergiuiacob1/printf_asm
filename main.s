@@ -53,9 +53,15 @@ myprintf:
             call printInteger
             jmp _parseFormatString
 
-
         myprintf_notInteger:
-        // maybe it's a character?
+        call checkIfCharacter
+        cmp $1, %rax
+        jnz myprintf_notCharacter
+            // it is a character
+            call printCharacter
+            jmp _parseFormatString
+
+        myprintf_notCharacter:
 
 
 
@@ -71,6 +77,50 @@ myprintf:
             
 
     myprintf_done:
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
+checkIfCharacter:
+    push %rbp
+    movq %rsp, %rbp
+
+    xor %rax, %rax
+
+    cmpb $'%', (%rdi)
+    jne checkIfCharacter_return
+    cmpb $'c', 1(%rdi)
+    jne checkIfCharacter_return
+    mov $1, %rax
+    
+    checkIfCharacter_return:
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
+printCharacter:
+    push %rbp
+    movq %rsp, %rbp
+
+    // first, go to the end of %...c in the string format (rdi)
+    printCharacter_jumpOverFormat:
+        inc %rdi
+        cmpb $'c', (%rdi)
+        jne printCharacter_jumpOverFormat
+    // jump over the last 'c'
+    inc %rdi
+
+    // get in rax what I have to print
+    call getNextParameter
+
+    mov %rax, BUFFER
+
+    mov $4, %rax
+    mov $1, %rbx
+    mov $BUFFER, %rcx
+    mov $1, %rdx
+    int $0x80
+
     movq %rbp, %rsp
     pop %rbp
     ret
@@ -106,7 +156,7 @@ printInteger:
     // jump over the last 'd'
     inc %rdi
 
-    // put in rax what I have to print
+    // get in rax what I have to print
     call getNextParameter
 
     // remember the sign
@@ -160,7 +210,6 @@ printInteger:
 
         loop _build_correct_number
 
-    // one more character (the newline)
     inc %r15
     mov $4, %rax
     mov $1, %rbx

@@ -16,10 +16,14 @@ int main()
     // myprintf("\n"); // special character
     // myprintf("\n"); // special character
 
-    // string
+    // simple string
     // myprintf("89184\n");
     // myprintf("Hello, world!");
     // myprintf("\n");
+
+    // characters
+    myprintf("single character: %c\n", charTest);
+    myprintf("single character: %c\n", 'a');
 
     // integers
     myprintf("%d\n", intTest);
@@ -29,10 +33,10 @@ int main()
     // multiple parameters
     myprintf("Current date of writing this code line: %d/%d/%d\n", 6, 3, 2020);
     myprintf("Fibonacci numbers: %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 1, 2, 3, 5, 8, 13, 21, 34);
-    // myprintf("\n");
+    myprintf("\n");
 
     // mixed parameters
-    // myprintf("%c is the %drd letter of the English alphabet\n", 'c', 3);
+    myprintf("'%c' is the %drd letter of the English alphabet\n", 'c', 3);
     // myprintf("\n");
 
     return 0;
