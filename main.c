@@ -27,17 +27,21 @@ int main()
     // myprintf("single character: %c\n", 'a');
 
     // integers
-    // myprintf("%d\n", intTest);
-    // myprintf("The number %d is the solution\n", 42);
-    // myprintf("\n");
+    printf ("printf displaying an int: %d\n", 1 << 31);
+    myprintf("myprintf displaying the same int: %d\n", 1 << 31);
+    myprintf("%d\n", intTest);
+    myprintf("The number %d is the solution\n", 42);
+    myprintf("\n");
 
     // string parameters
     // myprintf ("%s\n", "Hello, world!");
     // myprintf("string parameter: %s\n", stringTest);
 
     // HEX
-    printf ("printf hex result: %x\n", intTest);
-    myprintf ("myprintf hex result: %X\n", intTest);
+    printf ("printf hex value for %d: %X\n", intTest, intTest);
+    myprintf ("myprintf hex value for %d: %X\n", intTest, intTest);
+    printf ("printf hex value for %d: %X\n", -intTest, -intTest);
+    myprintf ("myprintf hex value for %d: %X\n", -intTest, -intTest);
 
     // multiple parameters
     myprintf("Current date of writing this code line: %d/%d/%d\n", 6, 3, 2020);

@@ -234,12 +234,12 @@ printInteger:
     call getNextParameter
 
     // remember the sign
+    // work with eax!!! because this is an int!
     mov $1, %r14
-    cmp $0, %rax
+    cmp $0, %eax
     jg printInteger_isPositive
     mov $-1, %r14
-    // neg %rax
-    imul $-1, %rax 
+    neg %eax
 
     printInteger_isPositive:
     // get the number's digits
