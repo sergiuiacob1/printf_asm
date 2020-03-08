@@ -248,44 +248,39 @@ printInteger:
     mov $10, %r10
     printInteger_reverseNumber:
         xor %rdx, %rdx
-        idiv %r10, %rax
+        div %r10d, %eax
         movb %dl, (%rbx)
         inc %rcx
         inc %rbx
 
-        cmp $0, %rax
+        cmp $0, %eax
         jnz printInteger_reverseNumber
-
-    // put the digits in the BUFFER, but reverse them
-    mov $BUFFER, %rbx
+    
+    // move rbx to last digit
+    dec %rbx
     // save total number of bytes to be written
     mov %rcx, %r15
 
+    mov $BUFFER, %rax
     // check the sign
     cmp $-1, %r14
-    jne _do_not_adjust_sign
-    movb $'-', (%rbx)
-    inc %rbx
+    jne printInteger_buildCorrectNumber
+    movb $'-', (%rax)
+    inc %rax
     inc %r15
 
-    _do_not_adjust_sign:
-    mov $INVERSED, %rax
-    
-    // for rbx, go to the end
-    add %rcx, %rbx
-    movb $0, (%rbx)
-    dec %rbx
-
-    _build_correct_number:
-        mov (%rax), %r13
-        movb %r13b, (%rbx)
-        addb $48, (%rbx)
+    printInteger_buildCorrectNumber:
+        mov (%rbx), %r13
+        movb %r13b, (%rax)
+        addb $48, (%rax)
 
         inc %rax
         dec %rbx
 
-        loop _build_correct_number
-    
+        loop printInteger_buildCorrectNumber
+    // put null, just to be safe
+    movb $0, (%rax)
+
     mov $4, %rax
     mov $1, %rbx
     mov $BUFFER, %rcx
@@ -329,23 +324,17 @@ printHex:
 
     // get in rax what I have to print
     call getNextParameter
-
-    // remember the sign
-    mov $1, %r14
-    cmp $0, %rax
-    jg printHex_isPositive
-    mov $-1, %r14
-    neg %rax
-
+    
     printHex_isPositive:
     // get the number's digits
     mov $INVERSED, %rbx
     xor %rcx, %rcx
     // working with base 16
     mov $16, %r10
+    // work with eax!!! this is not long hex
     printHex_reverseNumber:
         xor %rdx, %rdx
-        idiv %r10, %rax
+        div %r10d, %eax
         // if res is 11, for example, I have to print HEXA_CHARS[11]
         mov $HEXA_CHARS, %r15
         add %rdx, %r15
@@ -358,18 +347,15 @@ printHex:
         jnz printHex_reverseNumber
 
     // I have to reverse the result
-    mov $BUFFER, %rbx
+    mov $BUFFER, %rax
     // save total number of bytes to be written
     mov %rcx, %r15
-    mov $INVERSED, %rax
-    // for rbx, go to the end
-    add %rcx, %rbx
-    movb $0, (%rbx)
+    // set rbx to last digit
     dec %rbx
 
     printHex_buildCorrectNumber:
-        mov (%rax), %r13
-        movb %r13b, (%rbx)
+        mov (%rbx), %r13
+        movb %r13b, (%rax)
         inc %rax
         dec %rbx
         loop printHex_buildCorrectNumber
