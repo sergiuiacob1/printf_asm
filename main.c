@@ -8,7 +8,7 @@ int main()
     // data to use
     char charTest = 'x';
     int intTest = 9786;
-    char[] stringTest = "This is a string.";
+    char *stringTest = "This is a string.";
 
     // simple chars
     // myprintf("");   // nothing
@@ -23,17 +23,21 @@ int main()
     // myprintf("\n");
 
     // characters
-    myprintf("single character: %c\n", charTest);
-    myprintf("single character: %c\n", 'a');
+    // myprintf("single character: %c\n", charTest);
+    // myprintf("single character: %c\n", 'a');
 
     // integers
-    myprintf("%d\n", intTest);
-    myprintf("The number %d is the solution\n", -42);
-    myprintf("\n");
+    // myprintf("%d\n", intTest);
+    // myprintf("The number %d is the solution\n", 42);
+    // myprintf("\n");
 
     // string parameters
-    myprintf ("%s\n", "Hello, world!");
-    myprintf("%s\n", stringTest);
+    // myprintf ("%s\n", "Hello, world!");
+    // myprintf("string parameter: %s\n", stringTest);
+
+    // HEX
+    printf ("printf hex result: %x\n", intTest);
+    myprintf ("myprintf hex result: %X\n", intTest);
 
     // multiple parameters
     myprintf("Current date of writing this code line: %d/%d/%d\n", 6, 3, 2020);

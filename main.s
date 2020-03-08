@@ -4,7 +4,8 @@
 
     BUFFER: .space 128
     INVERSED: .space 128
- 
+
+    HEXA_CHARS: .string "0123456789ABCDEF"
 
 .global myprintf
 
@@ -62,7 +63,22 @@ myprintf:
             jmp _parseFormatString
 
         myprintf_notCharacter:
+        call checkIfString
+        cmp $1, %rax
+        jnz myprintf_notString
+            // it is a string
+            call printString
+            jmp _parseFormatString
 
+        myprintf_notString:
+        call checkIfHex
+        cmp $1, %rax
+        jnz myprintf_notHex
+            // it is a hex
+            call printHex
+            jmp _parseFormatString
+
+        myprintf_notHex:
 
 
         // if I reach this, simply print the current character and go to the next one
@@ -77,6 +93,61 @@ myprintf:
             
 
     myprintf_done:
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
+checkIfString:
+    push %rbp
+    movq %rsp, %rbp
+
+    xor %rax, %rax
+
+    cmpb $'%', (%rdi)
+    jne checkIfCharacter_return
+    cmpb $'s', 1(%rdi)
+    jne checkIfString_return
+    mov $1, %rax
+    
+    checkIfString_return:
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
+printString:
+    push %rbp
+    movq %rsp, %rbp
+
+    // first, go to the end of %...s in the string format (rdi)
+    printString_jumpOverFormat:
+        inc %rdi
+        cmpb $'s', (%rdi)
+        jne printString_jumpOverFormat
+    // jump over the last 's'
+    inc %rdi
+
+    // get in rax what I have to print
+    // for strings, this is AN ADDRESS!!!
+    call getNextParameter
+
+    // find the length of the string first of all
+    mov %rax, %rbx
+    xor %rdx, %rdx
+    printString_findLength:
+        cmpb $0, (%rbx)
+        je printfString_doneFindingLength
+        inc %rbx
+        inc %rdx
+        jmp printString_findLength
+    printfString_doneFindingLength:
+
+    // print string (which is now in rax)
+    // and in rdx i already have the number of chars to print
+    mov %rax, %rcx
+    mov $4, %rax
+    mov $1, %rbx
+    int $0x80
+
     movq %rbp, %rsp
     pop %rbp
     ret
@@ -225,6 +296,95 @@ printInteger:
     movq %rbp, %rsp
     pop %rbp
     ret
+
+checkIfHex:
+    push %rbp
+    movq %rsp, %rbp
+
+    xor %rax, %rax
+
+    // format for hex: %X
+    cmpb $'%', (%rdi)
+    jne checkIfHex_return
+    cmpb $'X', 1(%rdi)
+    jne checkIfHex_return
+    mov $1, %rax
+    
+    checkIfHex_return:
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
+printHex:
+    push %rbp
+    movq %rsp, %rbp
+
+    // first, go to the end of %...X in the string format (rdi)
+    printHex_jumpOverFormat:
+        inc %rdi
+        cmpb $'X', (%rdi)
+        jne printHex_jumpOverFormat
+    // jump over the last 'X'
+    inc %rdi
+
+    // get in rax what I have to print
+    call getNextParameter
+
+    // remember the sign
+    mov $1, %r14
+    cmp $0, %rax
+    jg printHex_isPositive
+    mov $-1, %r14
+    neg %rax
+
+    printHex_isPositive:
+    // get the number's digits
+    mov $INVERSED, %rbx
+    xor %rcx, %rcx
+    // working with base 16
+    mov $16, %r10
+    printHex_reverseNumber:
+        xor %rdx, %rdx
+        idiv %r10, %rax
+        // if res is 11, for example, I have to print HEXA_CHARS[11]
+        mov $HEXA_CHARS, %r15
+        add %rdx, %r15
+        mov (%r15), %rdx
+        movb %dl, (%rbx)
+        inc %rcx
+        inc %rbx
+
+        cmp $0, %rax
+        jnz printHex_reverseNumber
+
+    // I have to reverse the result
+    mov $BUFFER, %rbx
+    // save total number of bytes to be written
+    mov %rcx, %r15
+    mov $INVERSED, %rax
+    // for rbx, go to the end
+    add %rcx, %rbx
+    movb $0, (%rbx)
+    dec %rbx
+
+    printHex_buildCorrectNumber:
+        mov (%rax), %r13
+        movb %r13b, (%rbx)
+        inc %rax
+        dec %rbx
+        loop printHex_buildCorrectNumber
+    
+    mov $4, %rax
+    mov $1, %rbx
+    mov $BUFFER, %rcx
+    mov %r15, %rdx
+    int $0x80
+
+
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
 
 getNextParameter:
     push %rbp
