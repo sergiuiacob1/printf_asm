@@ -9,6 +9,7 @@ int main()
     char charTest = 'x';
     int intTest = 9786;
     char *stringTest = "This is a string.";
+    long int longIntTest = 1275031850281302;
 
     // simple chars
     // myprintf("");   // nothing
@@ -46,8 +47,6 @@ int main()
     myprintf ("myprintf hex value for %d: %X\n", intTest, intTest);
     printf ("printf hex value for %d: %X\n", -intTest, -intTest);
     myprintf ("myprintf hex value for %d: %X\n", -intTest, -intTest);
-    printf ("printf hex value for %d: %X\n", 1231231233344, 1231231233344);
-    myprintf ("myprintf hex value for %d: %X\n", 1231231233344, 1231231233344);
     myprintf("---HEX---\n\n");
 
     // multiple parameters

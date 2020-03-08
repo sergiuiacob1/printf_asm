@@ -55,6 +55,14 @@ myprintf:
             jmp _parseFormatString
 
         myprintf_notInteger:
+        // call checkIfLongInteger
+        // cmp $1, %rax
+        // jnz myprintf_notLongInteger
+            // it is a long integer
+        //     call printLongInteger
+        //     jmp _parseFormatString
+
+        // myprintf_notLongInteger:
         call checkIfCharacter
         cmp $1, %rax
         jnz myprintf_notCharacter
@@ -237,7 +245,7 @@ printInteger:
     // work with eax!!! because this is an int!
     mov $1, %r14
     cmp $0, %eax
-    jg printInteger_isPositive
+    jge printInteger_isPositive
     mov $-1, %r14
     neg %eax
 
@@ -278,6 +286,101 @@ printInteger:
         dec %rbx
 
         loop printInteger_buildCorrectNumber
+    // put null, just to be safe
+    movb $0, (%rax)
+
+    mov $4, %rax
+    mov $1, %rbx
+    mov $BUFFER, %rcx
+    mov %r15, %rdx
+    int $0x80
+
+
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
+checkIfLongInteger:
+    push %rbp
+    movq %rsp, %rbp
+
+    xor %rax, %rax
+
+    // check if what I have right now is an integer
+    // it is an integer if I have "%d"
+    cmpb $'%', (%rdi)
+    jne checkIfLongInteger_return
+    cmpb $'l', 1(%rdi)
+    jne checkIfLongInteger_return
+    cmpb $'d', 2(%rdi)
+    jne checkIfLongInteger_return
+    mov $1, %rax
+    
+    checkIfLongInteger_return:
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
+printLongInteger:
+    push %rbp
+    movq %rsp, %rbp
+
+    // first, go to the end of %...d in the string format (rdi)
+    printLongInteger_JumpOverIntegerFormat:
+        inc %rdi
+        cmpb $'d', (%rdi)
+        jne printInteger_JumpOverIntegerFormat
+    // jump over the last 'd'
+    inc %rdi
+
+    // get in rax what I have to print
+    call getNextParameter
+
+    // remember the sign
+    // this is on 8 bytes, so use rax
+    mov $1, %r14
+    cmp $0, %rax
+    jge printLongInteger_isPositive
+    mov $-1, %r14
+    neg %rax
+
+    printLongInteger_isPositive:
+    // get the number's digits
+    mov $INVERSED, %rbx
+    xor %rcx, %rcx
+    mov $10, %r10
+    printLongInteger_reverseNumber:
+        xor %rdx, %rdx
+        div %r10, %rax
+        movb %dl, (%rbx)
+        inc %rcx
+        inc %rbx
+
+        cmp $0, %rax
+        jnz printLongInteger_reverseNumber
+    
+    // move rbx to last digit
+    dec %rbx
+    // save total number of bytes to be written
+    mov %rcx, %r15
+
+    mov $BUFFER, %rax
+    // check the sign
+    cmp $-1, %r14
+    jne printLongInteger_buildCorrectNumber
+    movb $'-', (%rax)
+    inc %rax
+    inc %r15
+
+    printLongInteger_buildCorrectNumber:
+        mov (%rbx), %r13
+        movb %r13b, (%rax)
+        addb $48, (%rax)
+
+        inc %rax
+        dec %rbx
+
+        loop printLongInteger_buildCorrectNumber
     // put null, just to be safe
     movb $0, (%rax)
 
