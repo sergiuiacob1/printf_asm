@@ -8,8 +8,9 @@ int main()
     // data to use
     char charTest = 'x';
     int intTest = 9786;
+    char[] stringTest = "This is a string.";
 
-    // chars
+    // simple chars
     // myprintf("");   // nothing
     // myprintf("1");  // single digit
     // myprintf("a");  // single char
@@ -27,8 +28,12 @@ int main()
 
     // integers
     myprintf("%d\n", intTest);
-    myprintf("The number %d is the solution\n", 42);
+    myprintf("The number %d is the solution\n", -42);
     myprintf("\n");
+
+    // string parameters
+    myprintf ("%s\n", "Hello, world!");
+    myprintf("%s\n", stringTest);
 
     // multiple parameters
     myprintf("Current date of writing this code line: %d/%d/%d\n", 6, 3, 2020);

@@ -167,6 +167,7 @@ printInteger:
     cmp $0, %rax
     jg printInteger_isPositive
     mov $-1, %r14
+    // neg %rax
     imul $-1, %rax 
 
     printInteger_isPositive:
@@ -185,10 +186,9 @@ printInteger:
         jnz printInteger_reverseNumber
 
     // put the digits in the BUFFER, but reverse them
-
-    // total number of characters to be written:
-    mov %rcx, %r15
     mov $BUFFER, %rbx
+    // save total number of bytes to be written
+    mov %rcx, %r15
 
     // check the sign
     cmp $-1, %r14
@@ -202,6 +202,8 @@ printInteger:
     
     // for rbx, go to the end
     add %rcx, %rbx
+    movb $0, (%rbx)
+    dec %rbx
 
     _build_correct_number:
         mov (%rax), %r13
