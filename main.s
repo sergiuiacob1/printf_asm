@@ -170,7 +170,7 @@ printIntArray:
 
     // get the length of the vector
     push %rbx
-    call getNumberFromFormatString
+    call getNextParameter
     pop %rbx
     mov %rax, %rcx
     dec %rcx
@@ -230,7 +230,7 @@ printHexArray:
 
     // get the length of the vector
     push %rbx
-    call getNumberFromFormatString
+    call getNextParameter
     pop %rbx
     mov %rax, %rcx
     dec %rcx

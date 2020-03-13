@@ -62,24 +62,25 @@ int main()
     // Arrays
     printf("---Arrays---\n");
     // v = vector; d = for ints; 5 = the length
-    myprintf("Array of ints: %vd12\n", intArrayTest);
-    myprintf("Another array of ints: %vd5\n", (int[]){101, 102, 103, 104});
-    myprintf("Printing arrays in one myprintf call:\nFirst array: %vd12\nAnd now another one: %vd3\nLet's also add a string: %s\nNow also printing a int array as hex numbers: %vX3\nArrays printed!\n", intArrayTest, anotherIntArrayTest, "This works well!", anotherIntArrayTest);
+    myprintf("Array of ints: %vd\n", intArrayTest, 12);
+    myprintf("An undeclared array of ints: %vd\n", (int[]){1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5}, 5);
     printf("---Arrays---\n\n");
 
     // multiple parameters
-    myprintf("---MULTIPLE PARAMETERS---\n");
+    myprintf("---MULTIPLE PARAMETERS OF THE SAME TYPE---\n");
     myprintf("Current date of writing this code line: %d/%d/%d\n", 6, 3, 2020);
     myprintf("Fibonacci numbers: %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 34 + 55, 34 + 55 * 2);
-    myprintf("A character: %c. A string: %s. Some ints: %d, %d, %d. Some hexas: %X, %X. One more character: %c\n", charTest, "String parameter", -1, -2, -3, 123125412, 1 << 31, 'z');
-    myprintf("printf with the exact same parameters:\n");
-    printf("A character: %c. A string: %s. Some ints: %d, %d, %d. Some hexas: %X, %X. One more character: %c\n", charTest, "String parameter", -1, -2, -3, 123125412, 1 << 31, 'z');
-    myprintf("Printing a char: %c, a string: %s, an int: %d, an array: %vd3\n", charTest, intTest, anotherIntArrayTest);
+    myprintf("Printing arrays in one myprintf call:\nFirst array: %vd\nAnd now another one: %vd\nLet's also add a string: %s\nNow also printing a int array as hex numbers: %vX\nArrays printed!\n", intArrayTest, 12, anotherIntArrayTest, 3, "This works well!", anotherIntArrayTest, 3);
     myprintf("---MULTIPLE PARAMETERS---\n\n");
 
     // mixed parameters
-    myprintf("'%c' is the %drd letter of the English alphabet\n", 'c', 3);
-    myprintf("\n");
+    myprintf("---MIXED PARAMETERS OF THE SAME TYPE---\n");
+    myprintf("A character: %c. A string: %s. Some ints: %d, %d, %d. Some hexas: %X, %X. One more character: %c\n", charTest, "String parameter", -1, -2, -3, 123125412, 1 << 31, 'z');
+    myprintf("printf with the exact same parameters:\n");
+    printf("A character: %c. A string: %s. Some ints: %d, %d, %d. Some hexas: %X, %X. One more character: %c\n", charTest, "String parameter", -1, -2, -3, 123125412, 1 << 31, 'z');
+    myprintf("Printing a char: %c, a string: %s, an int: %d, an array: %vd\n", charTest, stringTest, intTest, anotherIntArrayTest, 3);
+    myprintf("%d is the %dth value of this array: %vd and is the ASCII code for the letter %c, found in this string: \"%s\"\n", (int)'c', 3, (int[]){1, 2, (int)'c', 1 << 6, 1 << 7, 1 << 8, 10}, 5, 'c', "comment ca va?");
+    myprintf("---MIXED PARAMETERS---\n\n");
 
     return 0;
 }
