@@ -12,10 +12,10 @@
 // global conventions:
 // rdi is used for the format string
 // printf can have a variable number of parameters
-// we will use r11 to track where is the next parameter to print
-// if r11 is < 8 bytes * 5 parameters (rsi, rdx, rcx, r8, r9), simply POP the next parameter from the stack
-// if r11 is equal to 40, the parameter is at 16(%rbp)
-// for any value for r11 bigger than 40, the next parameter should be at (r11 - 40 + 16)(%rbp)
+// we will use r12 to track where is the next parameter to print
+// if r12 is < 8 bytes * 5 parameters (rsi, rdx, rcx, r8, r9), simply POP the next parameter from the stack
+// if r12 is equal to 40, the parameter is at 16(%rbp)
+// for any value for r12 bigger than 40, the next parameter should be at (r12 - 40 + 16)(%rbp)
 
 myprintf:
     push %rbp
@@ -38,6 +38,11 @@ myprintf:
     push %rdx
     push %rsi
 
+    // save the current stack addres in r11
+    // I'll use r11 to get the parameters that I have to print
+    mov %rsp, %r11
+    // initially, I "consumed" no bytes
+    xor %r12, %r12
 
     // initially, r10 == 0 (we are at the first parameter)
     xor %r10, %r10
@@ -476,30 +481,26 @@ printHex:
 
 
 getNextParameter:
+    // puts in rax the next parameter that I have to print
     push %rbp
     movq %rsp, %rbp
-
-    mov %rsi, %rax
-    jmp getNextParameter_end
-
-    // puts in rax the next parameter that I have to print
     
-    cmp $40, %r11
-    jge getNextParameter_isAfterFirstParameters
-    // if r11 < 40 bytes, then the next parameter is either rsi, rdx, rcx, r8 or r9
+    // r11 represents the stack address
+    // if r12 < 40 bytes, then the next parameter is either rsi, rdx, rcx, r8 or r9
     // these were pushed on the stack at the beggining
+    // if not, they were pushed on the stack BEFORE calling myprintf, so add an additional offset of 16
+
+    // first, move %rsp to where it should be
+    mov %r11, %rsp
+    add %r12, %rsp
+    cmp $40, %r12
+    jl getNextParameter_getBytes
+    // if I got here, then add an additional offset of 16
+    add $16, %rsp
+
+    getNextParameter_getBytes:
     pop %rax
-    // I "consumed" 8 bytes
-    add $8, %r11
-    jmp getNextParameter_end
-
-    getNextParameter_isAfterFirstParameters:
-    // get from stack
-    mov %r11, %rax
-    sub $40, %rax
-    // mov %rbp, 
-
-    
+    add $8, %r12
 
     getNextParameter_end:
     movq %rbp, %rsp
