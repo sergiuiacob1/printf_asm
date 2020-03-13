@@ -112,6 +112,16 @@ myprintf:
             jmp _parseFormatString
 
         myprintf_notIntArray:
+        call checkIfHexArray
+        cmp $1, %rax
+        jnz myprintf_notHexArray
+            // it is a hex array
+            // put what to print in rax
+            call getNextParameter
+            call printHexArray
+            jmp _parseFormatString
+
+        myprintf_notHexArray:
 
         // if I reach this, simply print the current character and go to the next one
         mov %rdi, %rcx
@@ -180,6 +190,66 @@ printIntArray:
         pop %rcx
         pop %rbx
         loop printIntArray_printIndividualInts
+    
+    // print the last one without ", "
+    mov (%rbx), %rax
+    call printInteger
+
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
+checkIfHexArray:
+    push %rbp
+    movq %rsp, %rbp
+
+    xor %rax, %rax
+
+    cmpb $'%', (%rdi)
+    jne checkIfHexArray_return
+    cmpb $'v', 1(%rdi)
+    jne checkIfHexArray_return
+    cmpb $'X', 2(%rdi)
+    jne checkIfHexArray_return
+    mov $1, %rax
+
+    // jump over format
+    add $3, %rdi
+    
+    checkIfHexArray_return:
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
+printHexArray:
+    // in rax I have the vector to print
+    push %rbp
+    movq %rsp, %rbp
+
+    mov %rax, %rbx
+
+    // get the length of the vector
+    push %rbx
+    call getNumberFromFormatString
+    pop %rbx
+    mov %rax, %rcx
+    dec %rcx
+
+    printHexArray_printIndividual:
+        mov (%rbx), %rax
+        add $4, %rbx
+        push %rbx
+        push %rcx
+        call printHex
+        // print a ', ' afterwards
+        mov $',', %rax
+        call printCharacter
+        mov $' ', %rax
+        call printCharacter
+
+        pop %rcx
+        pop %rbx
+        loop printHexArray_printIndividual
     
     // print the last one without ", "
     mov (%rbx), %rax

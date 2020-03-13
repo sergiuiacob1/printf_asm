@@ -64,6 +64,7 @@ int main()
     // v = vector; d = for ints; 5 = the length
     myprintf("Array of ints: %vd12\n", intArrayTest);
     myprintf("Another array of ints: %vd5\n", (int[]){101, 102, 103, 104});
+    myprintf("Printing arrays in one myprintf call:\nFirst array: %vd12\nAnd now another one: %vd3\nLet's also add a string: %s\nNow also printing a int array as hex numbers: %vX3\nArrays printed!\n", intArrayTest, anotherIntArrayTest, "This works well!", anotherIntArrayTest);
     printf("---Arrays---\n\n");
 
     // multiple parameters
@@ -73,11 +74,11 @@ int main()
     myprintf("A character: %c. A string: %s. Some ints: %d, %d, %d. Some hexas: %X, %X. One more character: %c\n", charTest, "String parameter", -1, -2, -3, 123125412, 1 << 31, 'z');
     myprintf("printf with the exact same parameters:\n");
     printf("A character: %c. A string: %s. Some ints: %d, %d, %d. Some hexas: %X, %X. One more character: %c\n", charTest, "String parameter", -1, -2, -3, 123125412, 1 << 31, 'z');
+    myprintf("Printing a char: %c, a string: %s, an int: %d, an array: %vd3\n", charTest, intTest, anotherIntArrayTest);
     myprintf("---MULTIPLE PARAMETERS---\n\n");
 
     // mixed parameters
     myprintf("'%c' is the %drd letter of the English alphabet\n", 'c', 3);
-    myprintf ("Printing one array: ---%vd12--- and now another one: ---%vd3---. Let's also add a string: %s\n", intArrayTest, anotherIntArrayTest, "This works well!");
     myprintf("\n");
 
     return 0;
