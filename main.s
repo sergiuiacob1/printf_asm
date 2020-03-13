@@ -11,16 +11,18 @@
 
 // global conventions:
 // rdi is used for the format string
-// printf can have a variable number of parameters
+// myprintf can have a variable number of parameters
 // we will use r12 to track where is the next parameter to print
 // if r12 is < 8 bytes * 5 parameters (rsi, rdx, rcx, r8, r9), simply POP the next parameter from the stack
 // if r12 is equal to 40, the parameter is at 16(%rbp)
 // for any value for r12 bigger than 40, the next parameter should be at (r12 - 40 + 16)(%rbp)
+// r11 represents the stack address where I can find these parameters to print
+// r9 is used to know what's the output for the prints. stdout by default
 
 myprintf:
     push %rbp
     movq %rsp, %rbp
-    
+
     // parameter order: rdi, rsi, rdx, rcx, r8, r9
     // first parameter (rdi) is the format string, we keep that one separately
     // we will often overwrite rdx, rcx, so it is better if
@@ -29,6 +31,7 @@ myprintf:
 
     // IMPORTANT:
     // in case myprintf has more than 6 parameters, the rest of them are already on the stack
+    // ATTENTION! they are on the stack, but I have to add $16 to the current stack address to get to them
 
     // push registers in the inversed order
     // so I can just pop the parameters when I need them

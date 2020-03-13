@@ -70,7 +70,7 @@ int main()
     myprintf("---MULTIPLE PARAMETERS OF THE SAME TYPE---\n");
     myprintf("Current date of writing this code line: %d/%d/%d\n", 6, 3, 2020);
     myprintf("Fibonacci numbers: %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 34 + 55, 34 + 55 * 2);
-    myprintf("Printing arrays in one myprintf call:\nFirst array: %vd\nAnd now another one: %vd\nLet's also add a string: %s\nNow also printing a int array as hex numbers: %vX\nArrays printed!\n", intArrayTest, 12, anotherIntArrayTest, 3, "This works well!", anotherIntArrayTest, 3);
+    myprintf("Printing arrays in one myprintf call:\nFirst array: %vd\nAnd now another one: %vd\nLet's also add a string: %s\nNow also printing a int array as hex numbers: %vX\nArrays printed!\n", intArrayTest, 12, (int[]){-1, 3, 1 << 16}, 3, "This works well!", anotherIntArrayTest, 3);
     myprintf("---MULTIPLE PARAMETERS---\n\n");
 
     // mixed parameters
