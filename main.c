@@ -10,7 +10,8 @@ int main()
     int intTest = 9786;
     char *stringTest = "This is a string.";
     long int longIntTest = 1275031850281302;
-    int intArrayTest[] = {1, 2, 3, -1, -2, -3, 1 << 10, -1 << 19};
+    int intArrayTest[] = {1, 2, 3, 4, 5, 6, -1, -2, -3, 1 << 10, -1 << 19, 1 << 30};
+    int anotherIntArrayTest[] = {-101, -102, -103};
 
     // simple chars
     myprintf("---CHAR CHARACTERS---\n");
@@ -59,7 +60,11 @@ int main()
     myprintf("---HEX---\n\n");
 
     // Arrays
-    printf ("");
+    printf("---Arrays---\n");
+    // v = vector; d = for ints; 5 = the length
+    myprintf("Array of ints: %vd12\n", intArrayTest);
+    myprintf("Another array of ints: %vd5\n", (int[]){101, 102, 103, 104});
+    printf("---Arrays---\n\n");
 
     // multiple parameters
     myprintf("---MULTIPLE PARAMETERS---\n");
@@ -72,6 +77,7 @@ int main()
 
     // mixed parameters
     myprintf("'%c' is the %drd letter of the English alphabet\n", 'c', 3);
+    myprintf ("Printing one array: ---%vd12--- and now another one: ---%vd3---. Let's also add a string: %s\n", intArrayTest, anotherIntArrayTest, "This works well!");
     myprintf("\n");
 
     return 0;

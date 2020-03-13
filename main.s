@@ -56,6 +56,8 @@ myprintf:
         cmp $1, %rax
         jnz myprintf_notInteger
             // it is an integer
+            // put in rax what to print
+            call getNextParameter
             call printInteger
             jmp _parseFormatString
 
@@ -64,6 +66,8 @@ myprintf:
         // cmp $1, %rax
         // jnz myprintf_notLongInteger
             // it is a long integer
+            // put in rax what to print
+        //     call getNextParameter
         //     call printLongInteger
         //     jmp _parseFormatString
 
@@ -72,6 +76,8 @@ myprintf:
         cmp $1, %rax
         jnz myprintf_notCharacter
             // it is a character
+            // put what to print in rax
+            call getNextParameter
             call printCharacter
             jmp _parseFormatString
 
@@ -80,6 +86,8 @@ myprintf:
         cmp $1, %rax
         jnz myprintf_notString
             // it is a string
+            // put in rax what to print
+            call getNextParameter
             call printString
             jmp _parseFormatString
 
@@ -88,11 +96,22 @@ myprintf:
         cmp $1, %rax
         jnz myprintf_notHex
             // it is a hex
+            // put what to print in rax
+            call getNextParameter
             call printHex
             jmp _parseFormatString
 
         myprintf_notHex:
+        call checkIfIntArray
+        cmp $1, %rax
+        jnz myprintf_notIntArray
+            // it is an int array
+            // put what to print in rax
+            call getNextParameter
+            call printIntArray
+            jmp _parseFormatString
 
+        myprintf_notIntArray:
 
         // if I reach this, simply print the current character and go to the next one
         mov %rdi, %rcx
@@ -110,6 +129,67 @@ myprintf:
     pop %rbp
     ret
 
+checkIfIntArray:
+    push %rbp
+    movq %rsp, %rbp
+
+    xor %rax, %rax
+
+    cmpb $'%', (%rdi)
+    jne checkIfIntArray_return
+    cmpb $'v', 1(%rdi)
+    jne checkIfIntArray_return
+    cmpb $'d', 2(%rdi)
+    jne checkIfIntArray_return
+    mov $1, %rax
+
+    // jump over format
+    add $3, %rdi
+    
+    checkIfIntArray_return:
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
+printIntArray:
+    // in rax I have the vector to print
+    push %rbp
+    movq %rsp, %rbp
+
+    mov %rax, %rbx
+
+    // get the length of the vector
+    push %rbx
+    call getNumberFromFormatString
+    pop %rbx
+    mov %rax, %rcx
+    dec %rcx
+
+    printIntArray_printIndividualInts:
+        mov (%rbx), %rax
+        add $4, %rbx
+        push %rbx
+        push %rcx
+        call printInteger
+        // print a ', ' afterwards
+        mov $',', %rax
+        call printCharacter
+        mov $' ', %rax
+        call printCharacter
+
+        pop %rcx
+        pop %rbx
+        loop printIntArray_printIndividualInts
+    
+    // print the last one without ", "
+    mov (%rbx), %rax
+    call printInteger
+
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
+
 checkIfString:
     push %rbp
     movq %rsp, %rbp
@@ -117,10 +197,13 @@ checkIfString:
     xor %rax, %rax
 
     cmpb $'%', (%rdi)
-    jne checkIfCharacter_return
+    jne checkIfString_return
     cmpb $'s', 1(%rdi)
     jne checkIfString_return
     mov $1, %rax
+
+    // jump over "%s"
+    add $2, %rdi
     
     checkIfString_return:
     movq %rbp, %rsp
@@ -131,18 +214,7 @@ printString:
     push %rbp
     movq %rsp, %rbp
 
-    // first, go to the end of %...s in the string format (rdi)
-    printString_jumpOverFormat:
-        inc %rdi
-        cmpb $'s', (%rdi)
-        jne printString_jumpOverFormat
-    // jump over the last 's'
-    inc %rdi
-
-    // get in rax what I have to print
-    // for strings, this is AN ADDRESS!!!
-    call getNextParameter
-
+    // I have in rax what I want to print
     // find the length of the string first of all
     mov %rax, %rbx
     xor %rdx, %rdx
@@ -177,25 +249,18 @@ checkIfCharacter:
     jne checkIfCharacter_return
     mov $1, %rax
     
+    // jump over "%c"
+    add $2, %rdi
+
     checkIfCharacter_return:
     movq %rbp, %rsp
     pop %rbp
     ret
 
 printCharacter:
+    // receives in rax what to print
     push %rbp
     movq %rsp, %rbp
-
-    // first, go to the end of %...c in the string format (rdi)
-    printCharacter_jumpOverFormat:
-        inc %rdi
-        cmpb $'c', (%rdi)
-        jne printCharacter_jumpOverFormat
-    // jump over the last 'c'
-    inc %rdi
-
-    // get in rax what I have to print
-    call getNextParameter
 
     mov $BUFFER, %rbx
     movb %al, (%rbx)
@@ -225,6 +290,9 @@ checkIfInteger:
     cmpb $'d', 1(%rdi)
     jne checkIfInteger_return
     mov $1, %rax
+
+    // jump over "%d"
+    add $2, %rdi
     
     checkIfInteger_return:
     movq %rbp, %rsp
@@ -232,19 +300,9 @@ checkIfInteger:
     ret
 
 printInteger:
+    // receives in rax what to print
     push %rbp
     movq %rsp, %rbp
-
-    // first, go to the end of %...d in the string format (rdi)
-    printInteger_JumpOverIntegerFormat:
-        inc %rdi
-        cmpb $'d', (%rdi)
-        jne printInteger_JumpOverIntegerFormat
-    // jump over the last 'd'
-    inc %rdi
-
-    // get in rax what I have to print
-    call getNextParameter
 
     // remember the sign
     // work with eax!!! because this is an int!
@@ -320,6 +378,9 @@ checkIfLongInteger:
     cmpb $'d', 2(%rdi)
     jne checkIfLongInteger_return
     mov $1, %rax
+
+    // jump over "%ld"
+    add $3, %rdi
     
     checkIfLongInteger_return:
     movq %rbp, %rsp
@@ -327,19 +388,9 @@ checkIfLongInteger:
     ret
 
 printLongInteger:
+    // receives in rax what to print
     push %rbp
     movq %rsp, %rbp
-
-    // first, go to the end of %...d in the string format (rdi)
-    printLongInteger_JumpOverIntegerFormat:
-        inc %rdi
-        cmpb $'d', (%rdi)
-        jne printInteger_JumpOverIntegerFormat
-    // jump over the last 'd'
-    inc %rdi
-
-    // get in rax what I have to print
-    call getNextParameter
 
     // remember the sign
     // this is on 8 bytes, so use rax
@@ -412,6 +463,9 @@ checkIfHex:
     cmpb $'X', 1(%rdi)
     jne checkIfHex_return
     mov $1, %rax
+
+    // jump over "%X"
+    add $2, %rdi
     
     checkIfHex_return:
     movq %rbp, %rsp
@@ -419,19 +473,9 @@ checkIfHex:
     ret
 
 printHex:
+    // receives in rax what to print
     push %rbp
     movq %rsp, %rbp
-
-    // first, go to the end of %...X in the string format (rdi)
-    printHex_jumpOverFormat:
-        inc %rdi
-        cmpb $'X', (%rdi)
-        jne printHex_jumpOverFormat
-    // jump over the last 'X'
-    inc %rdi
-
-    // get in rax what I have to print
-    call getNextParameter
     
     printHex_isPositive:
     // get the number's digits
@@ -503,6 +547,33 @@ getNextParameter:
     add $8, %r12
 
     getNextParameter_end:
+    movq %rbp, %rsp
+    pop %rbp
+    ret
+
+
+getNumberFromFormatString:
+    // puts in rax the current number in the format string
+    // ex: if rdi is now at "1312 %d something something" it will return 1312 and rdi will be on ' '
+    push %rbp
+    movq %rsp, %rbp
+
+    xor %rax, %rax
+    getNumberFromFormatString_whileDigit:
+        cmpb $'0', (%rdi)
+        jl getNumberFromFormatString_return
+        cmpb $'9', (%rdi)
+        jg getNumberFromFormatString_return
+        imul $10, %rax
+        xor %rbx, %rbx
+        movb (%rdi), %bl
+        sub $'0', %bl
+        add %rbx, %rax
+        inc %rdi
+        jmp getNumberFromFormatString_whileDigit
+
+
+    getNumberFromFormatString_return:
     movq %rbp, %rsp
     pop %rbp
     ret
