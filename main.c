@@ -72,10 +72,12 @@ int main()
     // print in file
     fmyprintf(outPointer, "---INTEGERS---\n");
     fprintf(fout, "fprintf displaying an int: %d\n", 1 << 31);
+    fflush(fout);
     fmyprintf(outPointer, "fmyprintf displaying the same int: %d\n", 1 << 31);
     fmyprintf(outPointer, "%d\n", intTest);
     fmyprintf(outPointer, "The number %d is the solution\n", 42);
     fprintf(fout, "fprintf example of int overflow: %d\n", intTest * intTest * intTest);
+    fflush(fout);
     fmyprintf(outPointer, "fmyprintf example of int overflow: %d\n", intTest * intTest * intTest);
     fmyprintf(outPointer, "---INTEGERS---\n\n");
 
@@ -102,8 +104,10 @@ int main()
     // print in file
     fmyprintf(outPointer, "---HEX---\n");
     fprintf(fout, "fprintf hex value for %d: %X\n", intTest, intTest);
+    fflush(fout);
     fmyprintf(outPointer, "fmyprintf hex value for %d: %X\n", intTest, intTest);
     fprintf(fout, "fprintf hex value for %d: %X\n", -intTest, -intTest);
+    fflush(fout);
     fmyprintf(outPointer, "fmyprintf hex value for %d: %X\n", -intTest, -intTest);
     fmyprintf(outPointer, "---HEX---\n\n");
 
@@ -149,10 +153,10 @@ int main()
     fmyprintf(outPointer, "A character: %c. A string: %s. Some ints: %d, %d, %d. Some hexas: %X, %X. One more character: %c\n", charTest, "String parameter", -1, -2, -3, 123125412, 1 << 31, 'z');
     fmyprintf(outPointer, "fprintf with the exact same parameters:\n");
     fprintf(fout, "A character: %c. A string: %s. Some ints: %d, %d, %d. Some hexas: %X, %X. One more character: %c\n", charTest, "String parameter", -1, -2, -3, 123125412, 1 << 31, 'z');
+    fflush(fout);
     fmyprintf(outPointer, "Printing a char: %c, a string: %s, an int: %d, an array: %vd\n", charTest, stringTest, intTest, anotherIntArrayTest, 3);
     fmyprintf(outPointer, "%d is the %dth value of this array: %vd and is the ASCII code for the letter %c, found in this string: \"%s\"\n", (int)'c', 3, (int[]){1, 2, (int)'c', 1 << 6, 1 << 7, 1 << 8, 10}, 5, 'c', "comment ca va?");
     fmyprintf(outPointer, "---MIXED PARAMETERS---\n\n");
-
 
     fclose(fout);
     return 0;
