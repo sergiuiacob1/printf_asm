@@ -84,10 +84,10 @@ int main()
     myprintf("string parameter: %s\n", stringTest);
     myprintf("---STRING PARAMETERS---\n\n");
     // file
-    fmyprintf(outPointer"---STRING PARAMETERS---\n");
-    fmyprintf(outPointer"%s\n", "Hello, world!");
-    fmyprintf(outPointer"string parameter: %s\n", stringTest);
-    fmyprintf(outPointer"---STRING PARAMETERS---\n\n");
+    fmyprintf(outPointer, "---STRING PARAMETERS---\n");
+    fmyprintf(outPointer, "%s\n", "Hello, world!");
+    fmyprintf(outPointer, "string parameter: %s\n", stringTest);
+    fmyprintf(outPointer, "---STRING PARAMETERS---\n\n");
 
     // HEX
     myprintf("---HEX---\n");
