@@ -7,7 +7,7 @@
 
     HEXA_CHARS: .string "0123456789ABCDEF"
 
-    OUTPUT: .long 1
+    OUTPUT: .quad 1
 
 .global myprintf, fmyprintf
 
@@ -23,6 +23,9 @@
 
 
 fmyprintf:
+    push %rbp
+    movq %rsp, %rbp
+
     // push the parameters in the same way
     push %r9
     push %r8
@@ -39,6 +42,10 @@ fmyprintf:
     mov %rsp, %r11
 
     jmp myprintf_start
+
+    movq %rbp, %rsp
+    pop %rbp
+    ret
 
 
 myprintf:

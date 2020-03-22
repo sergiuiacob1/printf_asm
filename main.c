@@ -65,8 +65,8 @@ int main()
     myprintf("myprintf displaying the same int: %d\n", 1 << 31);
     myprintf("%d\n", intTest);
     myprintf("The number %d is the solution\n", 42);
-    printf("printf example of int overflow: %d\n", 999999999999999999);
-    myprintf("myprintf example of int overflow: %d\n", 999999999999999999);
+    printf("printf example of int overflow: %d\n", intTest * intTest * intTest);
+    myprintf("myprintf example of int overflow: %d\n", intTest * intTest * intTest);
     myprintf("---INTEGERS---\n\n");
     // print in file
     fmyprintf(outPointer, "---INTEGERS---\n");
@@ -74,8 +74,8 @@ int main()
     fmyprintf(outPointer, "fmyprintf displaying the same int: %d\n", 1 << 31);
     fmyprintf(outPointer, "%d\n", intTest);
     fmyprintf(outPointer, "The number %d is the solution\n", 42);
-    fprintf(fout, "fprintf example of int overflow: %d\n", 999999999999999999);
-    fmyprintf(outPointer, "fmyprintf example of int overflow: %d\n", 999999999999999999);
+    fprintf(fout, "fprintf example of int overflow: %d\n", intTest * intTest * intTest);
+    fmyprintf(outPointer, "fmyprintf example of int overflow: %d\n", intTest * intTest * intTest);
     fmyprintf(outPointer, "---INTEGERS---\n\n");
 
     // string parameters
@@ -96,13 +96,26 @@ int main()
     printf("printf hex value for %d: %X\n", -intTest, -intTest);
     myprintf("myprintf hex value for %d: %X\n", -intTest, -intTest);
     myprintf("---HEX---\n\n");
+    myprintf("---HEX---\n");
+    // print in file
+    fprintf(fout, "fprintf hex value for %d: %X\n", intTest, intTest);
+    fmyprintf(outPointer, "myprintf hex value for %d: %X\n", intTest, intTest);
+    fprintf(fout, "fprintf hex value for %d: %X\n", -intTest, -intTest);
+    fmyprintf(outPointer, "myprintf hex value for %d: %X\n", -intTest, -intTest);
+    fmyprintf(outPointer, "---HEX---\n\n");
 
     // Arrays
-    printf("---Arrays---\n");
+    myprintf("---Arrays---\n");
     // v = vector; d = for ints; 5 = the length
     myprintf("Array of ints: %vd\n", intArrayTest, 12);
     myprintf("An undeclared array of ints: %vd\n", (int[]){1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5}, 5);
-    printf("---Arrays---\n\n");
+    myprintf("---Arrays---\n\n");
+    // print in file
+    fmyprintf(outPointer, "---Arrays---\n");
+    // v = vector; d = for ints; 5 = the length
+    fmyprintf(outPointer, "Array of ints: %vd\n", intArrayTest, 12);
+    fmyprintf(outPointer, "An undeclared array of ints: %vd\n", (int[]){1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5}, 5);
+    fmyprintf(outPointer, "---Arrays---\n\n");
 
     // multiple parameters
     myprintf("---MULTIPLE PARAMETERS OF THE SAME TYPE---\n");
@@ -110,6 +123,12 @@ int main()
     myprintf("Fibonacci numbers: %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 34 + 55, 34 + 55 * 2);
     myprintf("Printing arrays in one myprintf call:\nFirst array: %vd\nAnd now another one: %vd\nLet's also add a string: %s\nNow also printing a int array as hex numbers: %vX\nArrays printed!\n", intArrayTest, 12, (int[]){-1, 3, 1 << 16}, 3, "This works well!", anotherIntArrayTest, 3);
     myprintf("---MULTIPLE PARAMETERS OF THE SAME TYPE----\n\n");
+    // print in file
+    fmyprintf(outPointer, "---MULTIPLE PARAMETERS OF THE SAME TYPE---\n");
+    fmyprintf(outPointer, "Current date of writing this code line: %d/%d/%d\n", 6, 3, 2020);
+    fmyprintf(outPointer, "Fibonacci numbers: %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 34 + 55, 34 + 55 * 2);
+    fmyprintf(outPointer, "Printing arrays in one myprintf call:\nFirst array: %vd\nAnd now another one: %vd\nLet's also add a string: %s\nNow also printing a int array as hex numbers: %vX\nArrays printed!\n", intArrayTest, 12, (int[]){-1, 3, 1 << 16}, 3, "This works well!", anotherIntArrayTest, 3);
+    fmyprintf(outPointer, "---MULTIPLE PARAMETERS OF THE SAME TYPE----\n\n");
 
     // mixed parameters
     myprintf("---MIXED PARAMETERS---\n");
@@ -119,6 +138,14 @@ int main()
     myprintf("Printing a char: %c, a string: %s, an int: %d, an array: %vd\n", charTest, stringTest, intTest, anotherIntArrayTest, 3);
     myprintf("%d is the %dth value of this array: %vd and is the ASCII code for the letter %c, found in this string: \"%s\"\n", (int)'c', 3, (int[]){1, 2, (int)'c', 1 << 6, 1 << 7, 1 << 8, 10}, 5, 'c', "comment ca va?");
     myprintf("---MIXED PARAMETERS---\n\n");
+    // print in file
+    fmyprintf(outPointer, "---MIXED PARAMETERS---\n");
+    fmyprintf(outPointer, "A character: %c. A string: %s. Some ints: %d, %d, %d. Some hexas: %X, %X. One more character: %c\n", charTest, "String parameter", -1, -2, -3, 123125412, 1 << 31, 'z');
+    fmyprintf(outPointer, "fprintf with the exact same parameters:\n");
+    fprintf(fout, "A character: %c. A string: %s. Some ints: %d, %d, %d. Some hexas: %X, %X. One more character: %c\n", charTest, "String parameter", -1, -2, -3, 123125412, 1 << 31, 'z');
+    fmyprintf(outPointer, "Printing a char: %c, a string: %s, an int: %d, an array: %vd\n", charTest, stringTest, intTest, anotherIntArrayTest, 3);
+    fmyprintf(outPointer, "%d is the %dth value of this array: %vd and is the ASCII code for the letter %c, found in this string: \"%s\"\n", (int)'c', 3, (int[]){1, 2, (int)'c', 1 << 6, 1 << 7, 1 << 8, 10}, 5, 'c', "comment ca va?");
+    fmyprintf(outPointer, "---MIXED PARAMETERS---\n\n");
 
     fclose(fout);
     return 0;
