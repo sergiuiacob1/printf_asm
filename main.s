@@ -7,7 +7,9 @@
 
     HEXA_CHARS: .string "0123456789ABCDEF"
 
-.global myprintf
+    OUTPUT: .long 1
+
+.global myprintf, fmyprintf
 
 // global conventions:
 // rdi is used for the format string
@@ -18,6 +20,26 @@
 // for any value for r12 bigger than 40, the next parameter should be at (r12 - 40 + 16)(%rbp)
 // r11 represents the stack address where I can find these parameters to print
 // r9 is used to know what's the output for the prints. stdout by default
+
+
+fmyprintf:
+    // push the parameters in the same way
+    push %r9
+    push %r8
+    push %rcx
+    push %rdx
+    push %rsi
+
+    // if I call printf, rdi has the pointer that tells me where I should print
+    mov %rdi, OUTPUT
+    // and rsi will actually represent the string format
+    mov %rsi, %rdi
+    // I "consumed" 8 bytes
+    mov $8, %r12
+    mov %rsp, %r11
+
+    jmp myprintf_start
+
 
 myprintf:
     push %rbp
@@ -47,6 +69,11 @@ myprintf:
     // initially, I "consumed" no bytes
     xor %r12, %r12
 
+    // writing to stdout
+    mov $1, %r10
+    mov %r10, OUTPUT
+
+    myprintf_start:
     // initially, r10 == 0 (we are at the first parameter)
     xor %r10, %r10
 
@@ -129,7 +156,7 @@ myprintf:
         // if I reach this, simply print the current character and go to the next one
         mov %rdi, %rcx
         mov $4, %rax
-        mov $1, %rbx
+        mov OUTPUT, %rbx
         mov $1, %rdx
         int $0x80
 
@@ -303,7 +330,7 @@ printString:
     // and in rdx i already have the number of chars to print
     mov %rax, %rcx
     mov $4, %rax
-    mov $1, %rbx
+    mov OUTPUT, %rbx
     int $0x80
 
     movq %rbp, %rsp
@@ -341,7 +368,7 @@ printCharacter:
     movb $0, (%rbx)
 
     mov $4, %rax
-    mov $1, %rbx
+    mov OUTPUT, %rbx
     mov $BUFFER, %rcx
     mov $1, %rdx
     int $0x80
@@ -426,7 +453,7 @@ printInteger:
     movb $0, (%rax)
 
     mov $4, %rax
-    mov $1, %rbx
+    mov OUTPUT, %rbx
     mov $BUFFER, %rcx
     mov %r15, %rdx
     int $0x80
@@ -514,7 +541,7 @@ printLongInteger:
     movb $0, (%rax)
 
     mov $4, %rax
-    mov $1, %rbx
+    mov OUTPUT, %rbx
     mov $BUFFER, %rcx
     mov %r15, %rdx
     int $0x80
@@ -586,7 +613,7 @@ printHex:
         loop printHex_buildCorrectNumber
     
     mov $4, %rax
-    mov $1, %rbx
+    mov OUTPUT, %rbx
     mov $BUFFER, %rcx
     mov %r15, %rdx
     int $0x80
